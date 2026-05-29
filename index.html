@@ -1,1 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Underscore — Roblox Developer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --cyan: #00e5ff;
+    --cyan-dim: #00b8d4;
+    --cyan-glow: rgba(0,229,255,0.18);
+    --cyan-border: rgba(0,229,255,0.35);
+    --bg: #050a0f;
+    --bg2: #080f16;
+    --bg3: #0d1a24;
+    --bg4: #0f2030;
+    --text: #e8f4f8;
+    --text-dim: #7aabb8;
+    --text-muted: #3a6070;
+    --white: #ffffff;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; min-height: 100vh; }
 
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 40px; height: 60px;
+    background: rgba(5,10,15,0.85); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--cyan-border);
+  }
+  .nav-logo { font-family: 'Rajdhani', sans-serif; font-size: 22px; font-weight: 700; color: var(--cyan); letter-spacing: 2px; text-transform: uppercase; }
+  .nav-links { display: flex; gap: 32px; list-style: none; }
+  .nav-links a { font-size: 13px; font-weight: 500; color: var(--text-dim); text-decoration: none; letter-spacing: 1.5px; text-transform: uppercase; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--cyan); }
+
+  /* HERO */
+  .hero { position: relative; min-height: 100vh; display: flex; align-items: center; overflow: hidden; padding-top: 60px; }
+  .hero-bg { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(0,229,255,0.04) 0%, transparent 50%), linear-gradient(to bottom, transparent 60%, var(--bg) 100%); }
+  .hero-lines { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+  .hero-lines svg { position: absolute; top: 0; right: 0; width: 65%; height: 100%; opacity: 0.12; }
+  .hero-content { position: relative; z-index: 2; display: flex; align-items: center; width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 60px; gap: 60px; }
+  .hero-text { flex: 1; }
+  .hero-tag { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: var(--cyan); border: 1px solid var(--cyan-border); padding: 5px 14px; margin-bottom: 24px; clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%); background: var(--cyan-glow); }
+  .hero-tag::before { content: ''; width: 6px; height: 6px; background: var(--cyan); transform: rotate(45deg); flex-shrink: 0; }
+  .hero-name { font-family: 'Rajdhani', sans-serif; font-size: clamp(52px, 7vw, 88px); font-weight: 700; line-height: 0.95; color: var(--white); text-transform: uppercase; letter-spacing: -1px; margin-bottom: 6px; }
+  .hero-name span { color: var(--cyan); }
+  .hero-aka { font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 500; color: var(--text-dim); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 28px; }
+  .hero-desc { font-size: 15px; line-height: 1.7; color: var(--text-dim); max-width: 460px; margin-bottom: 40px; }
+  .hero-stats { display: flex; gap: 40px; margin-bottom: 40px; }
+  .stat-num { font-family: 'Rajdhani', sans-serif; font-size: 36px; font-weight: 700; color: var(--cyan); line-height: 1; }
+  .stat-label { font-size: 11px; font-weight: 500; color: var(--text-muted); letter-spacing: 1.5px; text-transform: uppercase; margin-top: 2px; }
+  .hero-btns { display: flex; gap: 16px; flex-wrap: wrap; }
+  .btn-primary { display: inline-flex; align-items: center; gap: 8px; padding: 12px 28px; background: var(--cyan); color: #000; font-weight: 600; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; text-decoration: none; clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%); transition: opacity 0.2s, transform 0.15s; }
+  .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+  .btn-outline { display: inline-flex; align-items: center; gap: 8px; padding: 11px 28px; background: transparent; color: var(--cyan); font-weight: 600; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; text-decoration: none; border: 1px solid var(--cyan-border); clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%); transition: background 0.2s, transform 0.15s; }
+  .btn-outline:hover { background: var(--cyan-glow); transform: translateY(-1px); }
+
+  /* AVATAR */
+  .hero-avatar { flex-shrink: 0; width: 380px; height: 380px; position: relative; }
+  .avatar-frame { position: relative; width: 100%; height: 100%; }
+  .avatar-frame::before { content: ''; position: absolute; inset: -2px; border: 2px solid var(--cyan-border); clip-path: polygon(20px 0%, 100% 0%, calc(100% - 20px) 100%, 0% 100%); z-index: 1; }
+  .avatar-frame img { width: 100%; height: 100%; object-fit: cover; clip-path: polygon(20px 0%, 100% 0%, calc(100% - 20px) 100%, 0% 100%); display: block; }
+  .avatar-corner { position: absolute; width: 24px; height: 24px; border-color: var(--cyan); border-style: solid; z-index: 2; }
+  .avatar-corner.tl { top: -4px; left: 16px; border-width: 2px 0 0 2px; }
+  .avatar-corner.tr { top: -4px; right: 16px; border-width: 2px 2px 0 0; }
+  .avatar-corner.bl { bottom: -4px; left: 16px; border-width: 0 0 2px 2px; }
+  .avatar-corner.br { bottom: -4px; right: 16px; border-width: 0 2px 2px 0; }
+  .avatar-label { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); font-family: 'Rajdhani', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--cyan); background: rgba(5,10,15,0.85); padding: 4px 14px; border: 1px solid var(--cyan-border); white-space: nowrap; z-index: 3; }
+
+  /* SECTIONS */
+  section { padding: 100px 60px; max-width: 1200px; margin: 0 auto; }
+  .section-header { margin-bottom: 60px; }
+  .section-tag { font-size: 11px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--cyan); margin-bottom: 10px; }
+  .section-title { font-family: 'Rajdhani', sans-serif; font-size: clamp(32px, 4vw, 48px); font-weight: 700; color: var(--white); text-transform: uppercase; letter-spacing: -0.5px; line-height: 1; }
+  .section-title span { color: var(--cyan); }
+  .divider { width: 60px; height: 2px; background: var(--cyan); margin-top: 16px; clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%); }
+  .section-sep { height: 1px; background: linear-gradient(to right, transparent, var(--cyan-border), transparent); max-width: 1200px; margin: 0 auto; }
+
+  /* ABOUT */
+  .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
+  .about-text p { font-size: 15px; line-height: 1.75; color: var(--text-dim); margin-bottom: 20px; }
+  .about-text p:last-child { margin-bottom: 0; }
+  .about-text strong { color: var(--white); font-weight: 500; }
+  .about-cards { display: flex; flex-direction: column; gap: 16px; }
+  .info-card { padding: 20px 24px; background: var(--bg3); border: 1px solid var(--cyan-border); border-left: 3px solid var(--cyan); clip-path: polygon(0 0, 100% 0, calc(100% - 12px) 100%, 0 100%); }
+  .info-card-label { font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+  .info-card-value { font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 600; color: var(--white); }
+
+  /* SKILLS */
+  .skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+  .skill-card { padding: 28px; background: var(--bg3); border: 1px solid rgba(0,229,255,0.12); position: relative; overflow: hidden; transition: border-color 0.2s, transform 0.2s; }
+  .skill-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--cyan); transform: scaleX(0); transform-origin: left; transition: transform 0.3s; }
+  .skill-card:hover::before { transform: scaleX(1); }
+  .skill-card:hover { border-color: var(--cyan-border); transform: translateY(-3px); }
+  .skill-card.featured { border-color: var(--cyan-border); background: linear-gradient(135deg, var(--bg4) 0%, var(--bg3) 100%); }
+  .skill-card.featured::before { transform: scaleX(1); }
+  .skill-icon { font-size: 28px; margin-bottom: 14px; display: block; }
+  .skill-name { font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 700; color: var(--white); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .skill-desc { font-size: 13px; line-height: 1.6; color: var(--text-dim); }
+  .skill-badge { display: inline-block; margin-top: 12px; font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--cyan); border: 1px solid var(--cyan-border); padding: 3px 10px; background: var(--cyan-glow); }
+  .skill-bar-wrap { margin-top: 14px; height: 3px; background: var(--bg); position: relative; }
+  .skill-bar { position: absolute; top: 0; left: 0; height: 100%; background: var(--cyan); transition: width 1s ease; width: 0%; }
+
+  /* PROJECTS */
+  .projects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 24px; }
+  .project-card { background: var(--bg3); border: 1px solid rgba(0,229,255,0.12); overflow: hidden; transition: border-color 0.25s, transform 0.2s; }
+  .project-card:hover { border-color: var(--cyan-border); transform: translateY(-4px); }
+  .project-header { padding: 28px 28px 0; }
+  .project-type { display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--cyan); border: 1px solid var(--cyan-border); padding: 3px 10px; background: var(--cyan-glow); }
+  .project-body { padding: 16px 28px 28px; }
+  .project-name { font-family: 'Rajdhani', sans-serif; font-size: 26px; font-weight: 700; color: var(--white); text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.1; margin-bottom: 10px; }
+  .project-desc { font-size: 13.5px; line-height: 1.65; color: var(--text-dim); margin-bottom: 20px; }
+  .project-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+  .project-tag { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); border: 1px solid rgba(0,229,255,0.1); padding: 3px 9px; }
+  .project-footer { display: flex; align-items: center; justify-content: space-between; padding: 16px 28px; border-top: 1px solid rgba(0,229,255,0.1); }
+  .project-role { font-size: 11px; font-weight: 500; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; }
+  .project-link { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--cyan); text-decoration: none; transition: opacity 0.2s; }
+  .project-link:hover { opacity: 0.7; }
+  .project-link svg { width: 12px; height: 12px; }
+
+  /* CONTACT */
+  .contact-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
+  .contact-text p { font-size: 15px; line-height: 1.75; color: var(--text-dim); margin-bottom: 30px; }
+  .social-links { display: flex; flex-direction: column; gap: 14px; }
+  .social-link { display: flex; align-items: center; gap: 16px; padding: 18px 24px; background: var(--bg3); border: 1px solid rgba(0,229,255,0.12); text-decoration: none; transition: border-color 0.2s, background 0.2s, transform 0.15s; clip-path: polygon(0 0, 100% 0, calc(100% - 12px) 100%, 0 100%); }
+  .social-link:hover { border-color: var(--cyan-border); background: var(--bg4); transform: translateX(4px); }
+  .social-icon { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: var(--cyan-glow); border: 1px solid var(--cyan-border); flex-shrink: 0; }
+  .social-icon svg { width: 18px; height: 18px; fill: var(--cyan); }
+  .social-name { font-family: 'Rajdhani', sans-serif; font-size: 17px; font-weight: 700; color: var(--white); text-transform: uppercase; letter-spacing: 1px; }
+  .social-handle { font-size: 12px; color: var(--text-dim); margin-top: 1px; }
+  .social-arrow { margin-left: auto; color: var(--text-muted); font-size: 18px; transition: color 0.2s, transform 0.2s; }
+  .social-link:hover .social-arrow { color: var(--cyan); transform: translateX(4px); }
+  .availability-card { padding: 32px; background: var(--bg3); border: 1px solid var(--cyan-border); border-left: 3px solid var(--cyan); margin-bottom: 24px; }
+  .avail-dot { display: inline-block; width: 8px; height: 8px; background: #00ff88; border-radius: 50%; margin-right: 8px; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0,255,136,0.4); } 50% { opacity: 0.8; box-shadow: 0 0 0 6px rgba(0,255,136,0); } }
+  .avail-status { font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: #00ff88; margin-bottom: 10px; }
+  .avail-title { font-family: 'Rajdhani', sans-serif; font-size: 22px; font-weight: 700; color: var(--white); text-transform: uppercase; margin-bottom: 8px; }
+  .avail-desc { font-size: 13px; line-height: 1.6; color: var(--text-dim); }
+
+  /* FOOTER */
+  footer { border-top: 1px solid var(--cyan-border); padding: 32px 60px; display: flex; align-items: center; justify-content: space-between; }
+  .footer-logo { font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 700; color: var(--cyan); letter-spacing: 2px; text-transform: uppercase; }
+  .footer-copy { font-size: 12px; color: var(--text-muted); letter-spacing: 1px; }
+
+  /* SCROLL INDICATOR */
+  .scroll-indicator { position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 6px; z-index: 2; }
+  .scroll-indicator span { font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--text-muted); }
+  .scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, var(--text-muted), transparent); animation: scrollDown 1.8s infinite; }
+  @keyframes scrollDown { 0% { opacity: 1; transform: scaleY(1); transform-origin: top; } 100% { opacity: 0; transform: scaleY(0); transform-origin: top; } }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .hero-content { flex-direction: column-reverse; padding: 0 24px; text-align: center; }
+    .hero-avatar { width: 260px; height: 260px; }
+    .hero-stats { justify-content: center; }
+    .hero-btns { justify-content: center; }
+    .hero-desc { margin: 0 auto 40px; }
+    section { padding: 60px 24px; }
+    .about-grid, .contact-wrap { grid-template-columns: 1fr; }
+    nav { padding: 0 20px; }
+    .nav-links { gap: 16px; }
+    footer { padding: 24px; flex-direction: column; gap: 8px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Underscore</div>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-lines">
+    <svg viewBox="0 0 800 600" preserveAspectRatio="xMaxYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <defs><style>.hl{fill:none;stroke:#00e5ff;stroke-width:1.2;}</style></defs>
+      <g transform="translate(200,0)">
+        <polyline class="hl" points="600,0 400,300 600,600"/>
+        <polyline class="hl" points="560,0 360,300 560,600"/>
+        <polyline class="hl" points="520,0 320,300 520,600"/>
+        <polyline class="hl" points="480,0 280,300 480,600"/>
+        <polyline class="hl" points="440,0 240,300 440,600"/>
+        <polyline class="hl" points="400,0 200,300 400,600"/>
+        <polyline class="hl" points="360,0 160,300 360,600"/>
+        <polyline class="hl" points="640,0 440,300 640,600"/>
+        <polyline class="hl" points="680,0 480,300 680,600"/>
+        <polyline class="hl" points="720,0 520,300 720,600"/>
+        <polyline class="hl" points="760,0 560,300 760,600"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="hero-content">
+    <div class="hero-text">
+      <div class="hero-tag">Roblox Developer</div>
+      <h1 class="hero-name">Under<span>score</span></h1>
+      <p class="hero-aka">aka Artem &nbsp;·&nbsp; Artemcik5</p>
+      <p class="hero-desc">I script things that work. Have been for 3+ years - mostly backend systems, game logic, and anything that keeps games from getting exploited. (or exploded)</p>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <div class="stat-num">3+</div>
+          <div class="stat-label">Years scripting</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">2</div>
+          <div class="stat-label">Years game design</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">3</div>
+          <div class="stat-label">Commissions done</div>
+        </div>
+      </div>
+      <div class="hero-btns">
+        <a href="#projects" class="btn-primary">View Projects →</a>
+        <a href="#contact" class="btn-outline">Get In Touch</a>
+      </div>
+    </div>
+
+    <div class="hero-avatar">
+      <div class="avatar-frame">
+        <div class="avatar-corner tl"></div>
+        <div class="avatar-corner tr"></div>
+        <div class="avatar-corner bl"></div>
+        <div class="avatar-corner br"></div>
+        <!-- Replace the src below with your actual render image path when hosting -->
+        <img src="avatar.png" alt="Underscore avatar render" />
+        <div class="avatar-label">Artemcik5</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-indicator">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</div>
+
+<div class="section-sep"></div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-header">
+    <p class="section-tag">// 001</p>
+    <h2 class="section-title">About <span>Me</span></h2>
+    <div class="divider"></div>
+  </div>
+  <div class="about-grid">
+    <div class="about-text">
+      <p>I'm <strong>Underscore</strong> - I've been scripting on Roblox for about 3 years now. I've been doing game design for 2 years while I was getting into the coding side, which honestly helped a lot. Knowing how a game is supposed to feel makes it easier to script it right.</p>
+      <p>I mostly work on the backend stuff - systems that run the game, handle security, keep things from breaking. From past experience, building things in pieces that actually slot together instead of one giant mess of a script works better.</p>
+      <p>I'm not gonna lie, my stuff doesn't always look the prettiest but it works, and it holds up. I've shipped games solo, led small teams, and done a few commissions. If you need something built properly, I could be the right person.</p>
+    </div>
+    <div class="about-cards">
+      <div class="info-card">
+        <div class="info-card-label">Username</div>
+        <div class="info-card-value">Artemcik5</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Known as</div>
+        <div class="info-card-value">Underscore / Artem</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Primary role</div>
+        <div class="info-card-value">Scripter / Lead Dev</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Experience</div>
+        <div class="info-card-value">3+ yrs scripting · 2 yrs game design</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Commissions</div>
+        <div class="info-card-value">3 completed</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-sep"></div>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="section-header">
+    <p class="section-tag">// 002</p>
+    <h2 class="section-title">Skills &amp; <span>Tools</span></h2>
+    <div class="divider"></div>
+  </div>
+  <div class="skills-grid">
+    <div class="skill-card featured">
+      <span class="skill-icon">🛡️</span>
+      <div class="skill-name">Anti-Cheat / Security</div>
+      <p class="skill-desc">Built a full anti-cheat from scratch. Taught me a lot about how exploits actually work and how to write server-side checks that catch them.</p>
+      <span class="skill-badge">Core specialty</span>
+      <div class="skill-bar-wrap"><div class="skill-bar" data-w="88%"></div></div>
+    </div>
+    <div class="skill-card featured">
+      <span class="skill-icon">📜</span>
+      <div class="skill-name">Programming / Luau</div>
+      <p class="skill-desc">3+ years of writing Luau, more in Python, HTML, CSS.</p>
+      <span class="skill-badge">Core specialty</span>
+      <div class="skill-bar-wrap"><div class="skill-bar" data-w="85%"></div></div>
+    </div>
+    <div class="skill-card">
+      <span class="skill-icon">🧩</span>
+      <div class="skill-name">Modular Systems</div>
+      <p class="skill-desc">I don't write one big script and call it done. Everything I make is split up properly so it's easy to change later without breaking everything else.</p>
+      <div class="skill-bar-wrap"><div class="skill-bar" data-w="80%"></div></div>
+    </div>
+    <div class="skill-card">
+      <span class="skill-icon">🎮</span>
+      <div class="skill-name">Game Design</div>
+      <p class="skill-desc">I've worked on games as a designer, or have been making GDDs for over 2 years now, and have led games forward.</p>
+      <div class="skill-bar-wrap"><div class="skill-bar" data-w="72%"></div></div>
+    </div>
+    <div class="skill-card">
+      <span class="skill-icon">🔧</span>
+      <div class="skill-name">3D Modeling</div>
+      <p class="skill-desc">Basic stuff - enough to fill in gaps when there's no builder on the team. Nothing crazy, but I can get by when I need to.</p>
+      <div class="skill-bar-wrap"><div class="skill-bar" data-w="40%"></div></div>
+    </div>
+    <div class="skill-card">
+      <span class="skill-icon">🖼️</span>
+      <div class="skill-name">UI / Logo Design</div>
+      <p class="skill-desc">Just started picking this up. Still early but I'm working on it - some basic stuff like shop guis, buttons, nothing extraordinary or perfect.</p>
+      <div class="skill-bar-wrap"><div class="skill-bar" data-w="22%"></div></div>
+    </div>
+  </div>
+</section>
+
+<div class="section-sep"></div>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="section-header">
+    <p class="section-tag">// 003</p>
+    <h2 class="section-title">My <span>Projects</span></h2>
+    <div class="divider"></div>
+  </div>
+  <div class="projects-grid">
+
+    <div class="project-card">
+      <div class="project-header">
+        <div class="project-type">Top Project</div>
+      </div>
+      <div class="project-body">
+        <div class="project-name">Steal A Meme</div>
+        <p class="project-desc">My best-doing game so far. Did this with one other person - I handled all the scripting and ran the whole project, they did some modelling and sound. Went from idea to a real playable game.</p>
+        <div class="project-tags">
+          <span class="project-tag">Game Design</span>
+          <span class="project-tag">Full Scripting</span>
+          <span class="project-tag">Team Lead</span>
+          <span class="project-tag">Luau</span>
+        </div>
+      </div>
+      <div class="project-footer">
+        <span class="project-role">Head Dev · Lead Scripter</span>
+        <a href="https://www.roblox.com/games/75112336655032/Steal-a-meme" target="_blank" class="project-link">
+          Play on Roblox
+          <svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><path d="M2.5 1h7a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0V2.707L2.354 9.354a.5.5 0 0 1-.708-.708L8.293 2H2.5a.5.5 0 0 1 0-1z" fill="currentColor"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <div class="project-header">
+        <div class="project-type">Solo Build</div>
+      </div>
+      <div class="project-body">
+        <div class="project-name" style="font-size:22px;">_Security</div>
+        <p class="project-desc">An anti-cheat I made entirely on my own. Honestly not the most complex thing out there, but building it taught me a ton - how exploiters think, how to catch stuff server-side, and why you can't trust the client for anything important.</p>
+        <div class="project-tags">
+          <span class="project-tag">Anti-Cheat</span>
+          <span class="project-tag">Server Security</span>
+          <span class="project-tag">Solo Dev</span>
+          <span class="project-tag">Luau</span>
+        </div>
+      </div>
+      <div class="project-footer">
+        <span class="project-role">Solo Developer</span>
+        <a href="https://www.roblox.com/games/91287158385249/Security" target="_blank" class="project-link">
+          View on Roblox
+          <svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><path d="M2.5 1h7a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0V2.707L2.354 9.354a.5.5 0 0 1-.708-.708L8.293 2H2.5a.5.5 0 0 1 0-1z" fill="currentColor"/></svg>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="section-sep"></div>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-header">
+    <p class="section-tag">// 004</p>
+    <h2 class="section-title">Get In <span>Touch</span></h2>
+    <div class="divider"></div>
+  </div>
+  <div class="contact-wrap">
+    <div class="contact-text">
+      <div class="availability-card">
+        <div class="avail-status"><span class="avail-dot"></span>Available for work</div>
+        <div class="avail-title">Open to Opportunities</div>
+        <p class="avail-desc">Taking on commissions, team projects, and collabs. Interested? Reach out and we'll figure it out.</p>
+      </div>
+      <p>Best way to reach me is Discord. You can also check out my Roblox profile below.</p>
+    </div>
+    <div class="social-links">
+      <a href="https://discord.gg/ySnJNsD8AZ" target="_blank" class="social-link">
+        <div class="social-icon">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.032.054a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+        </div>
+        <div class="social-info">
+          <div class="social-name">Discord</div>
+          <div class="social-handle">Underscoretime · Join the server</div>
+        </div>
+        <span class="social-arrow">→</span>
+      </a>
+      <a href="https://www.roblox.com/users/375797021/profile" target="_blank" class="social-link">
+        <div class="social-icon">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.875 0L0 20.125 20.125 24 24 3.875zm12.082 17.395l-8.436-2.09 2.09-8.436 8.437 2.09z"/></svg>
+        </div>
+        <div class="social-info">
+          <div class="social-name">Roblox Profile</div>
+          <div class="social-handle">Artemcik5</div>
+        </div>
+        <span class="social-arrow">→</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">Underscore</div>
+  <div class="footer-copy">Artemcik5 · Roblox Developer · 2025</div>
+</footer>
+
+<script>
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const bar = e.target.querySelector('.skill-bar');
+        if (bar && bar.dataset.w) bar.style.width = bar.dataset.w;
+      }
+    });
+  }, { threshold: 0.3 });
+  document.querySelectorAll('.skill-card').forEach(card => obs.observe(card));
+</script>
+</body>
+</html>
